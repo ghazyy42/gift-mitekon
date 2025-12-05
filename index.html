@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gift for Mitekon</title>
+<style>
+  :root{
+    --bg:#0f1724;
+    --card:#0f1724;
+    --accent:#6ee7b7;
+    --muted:#94a3b8;
+    --panel:#0b1220;
+    --glass: rgba(255,255,255,0.04);
+    --success:#10b981;
+  }
+  *{box-sizing:border-box;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg, rgba(5,18,37,0.5) 0%, rgba(7,24,43,0.5) 50%, rgba(7,25,43,0.5) 100%), url('assets/bg.jpg') center/cover fixed no-repeat;background-attachment:fixed;color:#e6eef8;}
+  .audio-player{position:fixed;bottom:20px;right:20px;z-index:40;background:rgba(15,23,36,0.9);padding:12px;border-radius:12px;border:1px solid rgba(110,231,183,0.2);box-shadow:0 4px 12px rgba(0,0,0,0.4);}
+  .audio-player audio{width:200px;outline:none;}
+  @media (max-width:480px){
+    .audio-player{bottom:10px;right:10px;}
+    .audio-player audio{width:150px;}
+  }
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+
+  .card{
+    width:100%;
+    max-width:420px;
+    background: rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
+    backdrop-filter: blur(1px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+    border-radius:18px;
+    padding:24px;
+    box-shadow:0 14px 50px rgba(2,6,23,0.75);
+    border:1px solid rgba(255,255,255,0.08);
+    z-index: 10;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .card:hover{
+    transform: translateY(-6px);
+    box-shadow:0 26px 80px rgba(2,6,23,0.85);
+  }
+
+  .logo{
+    display:flex;
+    gap:25px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .logo .dot{
+    width:100px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#60a5fa);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#052023;box-shadow:0 6px 18px rgba(12,26,46,0.6);
+  }
+  h1{margin:0;font-size:20px;}
+  p.lead{margin:8px 0 18px;color:var(--muted);font-size:14px;line-height:1.3;}
+
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .row{display:flex;gap:12px;}
+  input[type="text"]{
+    width:100%;
+    padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);
+    background:var(--glass);color:inherit;font-size:15px;outline:none;
+  }
+  .actions{display:flex;gap:12px;margin-top:14px;}
+  button{
+    padding:11px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),#60a5fa);
+    color:#052023;font-weight:700;cursor:pointer;flex:1;
+    box-shadow:0 8px 18px rgba(6,21,40,0.5);
+  }
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
+
+  .note{margin-top:12px;font-size:13px;color:var(--muted)}
+  .small{font-size:12px;color:var(--muted)}
+
+  /* Modal */
+  .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50;}
+  .modal-backdrop.show{display:flex;background:linear-gradient(0deg, rgba(1,6,12,0.7), rgba(1,6,12,0.7));}
+  .modal{
+    width:90%;
+    max-width:600px;
+    background:linear-gradient(180deg,#061226, #0b1630);
+    border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,0.04);
+    box-shadow:0 12px 40px rgba(2,6,23,0.7);text-align:center;
+  }
+  .modal h2{margin:0 0 8px;}
+  .message{margin:12px 0 18px;color:var(--muted);font-size:15px}
+  .close{margin-top:8px;padding:10px 16px;border-radius:10px;border:0;background:transparent;color:var(--accent);cursor:pointer;font-weight:700}
+
+  /* Confetti simple */
+  .confetti-piece{
+    position:absolute;width:10px;height:16px;opacity:0.95;
+    will-change:transform,opacity;
+    top:-10%;
+    animation:fall 2000ms linear forwards;
+  }
+  @keyframes fall{
+    to{transform:translateY(120vh) rotate(720deg);opacity:0;}
+  }
+
+  /* Photo pieces (falling photos) */
+  .photo-piece{
+    position:absolute;width:48px;height:48px;opacity:0.98;
+    will-change:transform,opacity,left,top;
+    top:-12%;
+    border-radius:8px;overflow:hidden;background-size:cover;background-position:center;
+    box-shadow:0 8px 24px rgba(2,6,23,0.6);
+    animation:fallPhoto 3200ms linear forwards;
+    transform-origin:center center;
+  }
+  @keyframes fallPhoto{
+    to{transform:translateY(120vh) rotate(720deg) scale(0.98);opacity:0;}
+  }
+
+  /* Responsive */
+  @media (max-width:420px){
+    .card{padding:18px;border-radius:12px}
+    .logo .dot{width:48px;height:48px}
+  }
+
+  /* Mobile: prefer showing whole background image without cropping
+     Use 'contain' so the full image is visible; this may add letterboxing
+     but prevents important parts from being cut off. Also disable
+     fixed attachment on mobile for better rendering. */
+  @media (max-width:480px){
+    html,body{
+      background-size: contain !important;
+      background-position: top center !important;
+      background-repeat: no-repeat !important;
+      background-attachment: scroll !important;
+      background-color: rgba(5,18,37,0.6) !important;
+    }
+  }
+
+  /* footer small */
+  .bottom{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
+  .used-tag{display:inline-block;background:#063b1f;padding:6px 10px;border-radius:999px;color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+<div class="audio-player">
+  <audio controls autoplay loop>
+    <source src="assets/music.mp3" type="audio/mpeg">
+    <source src="assets/music.ogg" type="audio/ogg">
+    Browser Anda tidak mendukung audio element.
+  </audio>
+</div>
+
+<div class="wrap">
+  <div class="card" role="main">
+    <div class="logo">
+      <div class="dot">★</div>
+      <div>
+        <h1>Untuk Mitekon</h1>
+        <p class="lead">Masukkin kode apresiasi yang diberikan admin dan nama Anda untuk melihat pesan apresiasi personal.</p>
+      </div>
+    </div>
+
+    <form id="giftForm" onsubmit="return false;">
+      <div style="margin-bottom:12px">
+        <label for="codeInput">Masukkan kode</label>
+        <input id="codeInput" type="text" inputmode="numeric" autocomplete="off" placeholder="Contoh: 01 atau 30" maxlength="10" />
+      </div>
+
+      <div style="margin-bottom:6px">
+        <label for="nameInput">Masukkan nama</label>
+        <input id="nameInput" type="text" autocomplete="name" placeholder="Nama Anda" maxlength="60" />
+      </div>
+
+      <div class="actions">
+        <button id="checkBtn" type="button">Lihat Apresiasi</button>
+        <button id="resetBtn" type="button" class="btn-ghost">Reset</button>
+      </div>
+
+      <p class="note">Catatan: Kode bisa dibuat berbeda-beda oleh ghazy. di buat dengan sepenuh hati baris per baris, anjayy <strong>satu kali</strong> (aktifkan di bawah).</p>
+
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+        <input id="onceToggle" type="checkbox" />
+        <label for="onceToggle" class="small" style="margin:0">Tandai kode sebagai <strong>satu kali pakai</strong> (disimpan di perangkat)</label>
+      </div>
+    </form>
+
+    <div class="bottom">
+      <div>Website Seru seruan tanpa security.</div>
+      <div style="margin-top:8px"><span class="small">Mau code nya? Chat Ghazy </span></div>
+      <div style="margin-top:10px">
+        <button id="photoToggle" type="button" class="btn-ghost">Start Photo Rain</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div style="position:relative;">
+      <h2 id="modalTitle">Selamat!</h2>
+      <div id="modalMsg" class="message">Pesan apresiasi</div>
+      
+      <button id="modalClose" class="close">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+  Gift Apresiasi - single file app
+  - codesMap: mapping kode -> pesan
+  - jika checkbox "Tandai satu kali pakai" dicentang, kode akan disimpan ke localStorage setelah digunakan
+  - responsive: mobile & desktop (web)
+*/
+
+const codesMap = {
+  "01": "Ini khusus kamu yaa cantikk {name}! selamat sebentar lagi EAT dan lanjut mengemban amanah yang baru semangat yaa jangan di ambil sendiri kesulitan kesusahan ataupun permasalahan yang ada di himpunan nanti share aja ke gua ataupun wakil lu. Selamat atas dedikasi dan kerja kerasmu selama di hima kemarin. Semoga sukses selalu! Semangat magang nya nanti jangan takutt ga jadi apaa apaa haruss bisaa!",
+  "M01": "Tengkyuu yaa kaaaa {name} atas dedikasi luar biasa yang telah lu kasih untuk mitekon! terimakasih udah selalu ngebadanin mitekon di rapat rapat besar atau ada yang menyenggol nyenggol mitekon. gua pribadi banyak belajar hal hal baru dari lu, selamat sudah menyelesaikan 1 priode nya di mitekon. semangat magang nya dan sukses terus yaa kaa!",
+  "M02": "Bang {name} makasih buat 1 priode nya di mitekon lancar teruss usaha nya semoga bisa jadi pengusaha suksess! lu keren bang meskipun jarang muncul di permukaan tapi kontribusi lu di mitekon ga bisa di anggap remeh, semangat magang nya dan sukses terus yaa bang!",
+  "Kumk": "Kaaa {name} makasihh udah nemenin 1 priode di umk! waktu awal first meet di unara gua ragu mau nyamperin anak anak mitekon ke atas tapi lu duluan nyapa gua wkwkwkw, sebener nyaa waktu awal gua ragu dengan mitekon ehehe makanyaa gua ngga langsung terima tawaran lu tapi di sisi lain kalo lu ngga menawarkan itu ke gua, gua pasti ga akan bisa berkontribusi apa apa untuk perjalanan organisasi gua tengkyu yaa kaa. semangatt magang dan semoga sukses terus yaa kedepannya!",
+  "Kms1": "Kaaa {name} makasihh yaa udah nerima rekomendasi dari mas rizaaa atau dari siapa pun ituuu! selamat yaa udah menyelesaikan 1 priode proker proker eventual di kemis, keren bangett sc upcome lanjut lagi sc ASA bener bener dah wanita fisip satu ini (si kecil pemberani) WWKWKKW becanda yaa kaa. semoga sukses terus yaa kedepannyaa!",
+  "umKy": "Jaylaa, ehh {name} maksd nyaaa jujurr waktuu awal gua tau lu partner proker gua, gua yang kaya arghh karena saat itu mantan pdkt an gua dulu namanya keyla (kaya nama lu) jadi gua rada gimanaa gituu wkwkwkwwk tapi lama lama gua kenal lu ternyata orang nyaa ngga se kaku itu ternyata malah se friendly itu lohh. makasihh yaa udah jadi partner yang baik bersama gua 1 priode di umk, semangat magang dan sukses terus yaa kedepannya!",
+  "umPok": "mpokkkk, eh maksdnya {name}. jujur ilmu komunikasi lu kepakee sii, guaa liat liatt temen lu banyak jugaa dari bidang lain dan mereka seru seru karenaa lu nyaa juga seru pokk, wkwkwkw seru banget bisa ceng ceng an sama ladies pondok gede pokonya gua akan teru manggil lu mpok yaa dan seters nya yang manggil lu mpok pasti anak mitekon wkwkwkwkw. semangat magang dan sukses terus yaa kedepannya pokkk!",
+  "umshaK": "rayaa, iyaa deh {name} -_-. padahal kerenn gua panggil raya karena gua blm punya temen yang namanya raya wkwkwwk, btww makasihh yaa udah jadi kakak asuh gua di umk, gua banyak belajar hal hal baru dari lu mulai dari cara ngadepin temen temen sampe cara ngadepin dosen wkwkwkwk. semangat magang dan sukses terus yaa kedepannya kaa!",
+  "umNan": "{name} kaget ternyataa sma lu di pkp yaa wkwkwk, awalnya gua kira lu tipikal orang yang judes tapi ngga waktu gua di ajak join ke mobil lu pas mau nunggu onboarding anjayy thanks yaa, gass nan lanjut bem wkwkwk. semangat dan sukses terus yaa kedepannya!",
+  "umBel": "bellaaa, ehh kaa {name} maksdnyaa wkwkwk. makasihh udah mempercayakan guaa untuk membuat lanyard ASA kreatif kerenn sudah menamatkan ASA KREATIF di tengahh kesibukan lu. selamat suadah menuntaskan 1 priode di mitekon yaaak, semangat magang dan sukses terus yaa kedepannya kaa!",
+  "umZar": "Bang {name} thankss yaa udah menjadi kating yang seru sampe sampe gua ngeserasa kawan. keren dah lu bang udah menamatkan belfest belfest an ituu. semangat magang dan sukses terus yaa kedepannya bang!",
+  "umRaj": "izinnnn kahimmmm, keren dah lu bang lamaa ga muncul tiba tiba jadi kahim wkwkwk. bang {name}, sukses terus, semangat mengemban amanah yang lebih besar dari sebelum nyaa izinnnn gua pun sama akan balik ke rumah tapi menjadi koordept semogaa dengan lu menjadi kahim kita bisa kolaborasi lebih banyak lagi, semangat magang dan sukses terus yaa kedepannya bang!",
+  "umDit4":"kaa {name}. keren sudah menamatkan 1 priode di mitekon yaaak, keren sudah menjalankan proker proker lu ber iringan dengan magang. semangat magangnya dan sukses terus yaa kedepannya kaa!",
+  "kmsGis":"kaaaa {name}. kerenn udah menamatkan 1 priode di mitekon, dan udah menamatkann pum selama 1 priodeee semangat magang dan sukses terus yaa kedepannya kaa!",
+  "kmsLz":"kaaa {name}. izinnnn vpo upcomee, kerenn udah menyelesaikann proker skala nasional nyaa yaa walaupun banyak lika likuuu nyaa. keren dah lu kaa semangat magang dan sukses terus yaa kedepannya kaa!",
+  "kmsAr":"{name}. ladiess hantu hukum wkwkwk, kerenn araaa udah menamatkan semua prokernya di kemis dalam 1 priode di mitekon ini. ara tetangga fakultas gwehhhh wkwkwk. semangat coolyeah nyaaa dan sukses terus yaa kedepannya raa!",
+  "kmsIs":"{name}. kerennn isaaa udah menamatkan 1 priode di mitekon tanpaa matil anjayyy, semangat coolyeah nyaa dan sukses terus yaa kedepannya saa!",
+  "kmsRik":"{nama}. izinnnn po upcomee, semangat terus ketua semoga makin lancar kuliah dan karir nya di organisasi lainnyaa jugaa. sukses terus kedepan nyaa ketuaa, HIDUP MAHASISWA!",
+  "kmsDe":"{name}. karennn ka deaa sifooo, kerenn udah menamatkan 1 priode di mitekon + magang, stop memegang megang barang orang lain wkwkwkwk, semangat magang dan sukses terus yaa kedepannya kaa!",
+  "kmsAl":"{name}. ternyataa lu 1 SMA dengan kawan guaa kaa wkwkwkw tapi mungkin karena covid kalian jarang kenal yaa kaa wkwkwk. btw kerenn udah menamatkan 1 priode di mitekon + magang, semangat magang dan sukses terus yaa kedepannya kaa!",
+  "kmsTan":"kaaa {name}. kerenn udah menamatkan pum selama 1 priode di mitekon. semangat mencari magangnyaa dan semogaa sukses terus yaa kedepannya!(kalo dapet magang it info info ehehe)",
+};
+
+// UI elements
+const codeInput = document.getElementById("codeInput");
+const nameInput = document.getElementById("nameInput");
+const checkBtn = document.getElementById("checkBtn");
+const resetBtn = document.getElementById("resetBtn");
+const modalBackdrop = document.getElementById("modalBackdrop");
+const modalMsg = document.getElementById("modalMsg");
+const modalClose = document.getElementById("modalClose");
+const onceToggle = document.getElementById("onceToggle");
+
+const STORAGE_KEY = "gift_used_codes_v1";
+
+// helper: normalize code (trim + uppercase)
+function normalizeCode(s){
+  return (s||"").toString().trim();
+}
+
+// load used codes
+function getUsedCodes(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return [];
+    return JSON.parse(raw);
+  }catch(e){ return []; }
+}
+function saveUsedCodes(arr){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }catch(e){}
+}
+
+function showModal(title, message, name){
+  // set content
+  let t = title || "Apresiasi";
+  // support both {name} and {nama} placeholders for flexibility
+  if(name){
+    if(t.indexOf('{name}') !== -1) t = t.split('{name}').join(name);
+    if(t.indexOf('{nama}') !== -1) t = t.split('{nama}').join(name);
+  }
+  document.getElementById("modalTitle").textContent = t;
+
+  let personalized = message || "";
+  if(name){
+    // Replace both placeholder variants in message
+    if(personalized.indexOf('{name}') !== -1 || personalized.indexOf('{nama}') !== -1){
+      personalized = personalized.split('{name}').join(name).split('{nama}').join(name);
+    } else {
+      // Otherwise, prepend the name to make the message personal
+      personalized = `${name}, ${personalized}`;
+    }
+  }
+  modalMsg.textContent = personalized;
+  // show backdrop
+  modalBackdrop.classList.add("show");
+  modalBackdrop.setAttribute("aria-hidden","false");
+  spawnConfetti();
+}
+
+function closeModal(){
+  modalBackdrop.classList.remove("show");
+  modalBackdrop.setAttribute("aria-hidden","true");
+  // remove confetti pieces if any
+  document.querySelectorAll('.confetti-piece').forEach(n=>n.remove());
+}
+
+// confetti: simple random pieces (no external lib)
+function spawnConfetti(){
+  // small burst
+  const count = 40;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    // random color
+    const colors = ['#FDE68A','#FDBA74','#FCA5A5','#60A5FA','#6EE7B7','#A78BFA'];
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    // random left position
+    el.style.left = Math.floor(Math.random()*100) + '%';
+    // random rotation
+    const rot = Math.floor(Math.random()*360);
+    el.style.transform = `rotate(${rot}deg)`;
+    // random delay and duration for variety
+    const dur = 1600 + Math.floor(Math.random()*1200);
+    const del = Math.floor(Math.random()*300);
+    el.style.animationDuration = dur + 'ms';
+    el.style.animationDelay = del + 'ms';
+    document.body.appendChild(el);
+    // auto remove after animation
+    setTimeout(()=>el.remove(), dur + del + 200);
+  }
+}
+
+// Photo fall: spawn photo-like pieces that fall down
+let photoRainInterval = null;
+function spawnPhotoPieces(count = 18){
+  const images = [
+    'assets/photo1.jpg', 'assets/photo2.png', 'assets/photo3.png', 'assets/photo4.png', 'assets/photo5.png', 'assets/bg.jpg'
+  ];
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'photo-piece';
+    // choose a random image (browser will fallback to 404 if missing)
+    const img = images[Math.floor(Math.random()*images.length)];
+    el.style.backgroundImage = `url('${img}')`;
+    // random horizontal start
+    el.style.left = Math.floor(Math.random()*100) + '%';
+    // random rotation start
+    const rot = Math.floor(Math.random()*360);
+    el.style.transform = `rotate(${rot}deg)`;
+    // variety in speed & delay
+    const dur = 2200 + Math.floor(Math.random()*2200);
+    const del = Math.floor(Math.random()*600);
+    el.style.animationDuration = dur + 'ms';
+    el.style.animationDelay = del + 'ms';
+    document.body.appendChild(el);
+    // remove after done
+    setTimeout(()=>el.remove(), dur + del + 400);
+  }
+}
+
+function startPhotoRain(){
+  if(photoRainInterval) return;
+  // initial burst
+  spawnPhotoPieces(22);
+  photoRainInterval = setInterval(()=>spawnPhotoPieces(12), 2500);
+  const btn = document.getElementById('photoToggle'); if(btn) btn.textContent = 'Stop Photo Rain';
+}
+function stopPhotoRain(){
+  if(photoRainInterval){ clearInterval(photoRainInterval); photoRainInterval = null; }
+  const btn = document.getElementById('photoToggle'); if(btn) btn.textContent = 'Start Photo Rain';
+}
+
+// main validation
+checkBtn.addEventListener('click', ()=>{
+  const rawCode = normalizeCode(codeInput.value);
+  const name = (nameInput.value || "").trim();
+  if(!rawCode){
+    alert("Masukkan kode terlebih dahulu.");
+    codeInput.focus();
+    return;
+  }
+  if(!name){
+    alert("Masukkan nama Anda agar pesan menjadi personal.");
+    nameInput.focus();
+    return;
+  }
+
+  // check used
+  const usedCodes = getUsedCodes();
+  if(usedCodes.includes(rawCode)){
+    alert("Kode ini di buat Ghazy sepenuh hati. Jika Anda yakin ini salah, hubungi ghazy.");
+    return;
+  }
+
+  // lookup in map
+  const message = codesMap[rawCode];
+  if(!message){
+    // kode tidak valid
+    alert("Kode tidak valid. coba tanya ghazy.");
+    return;
+  }
+
+  // Show modal with message (title can include {name} placeholder)
+  showModal("Apresiasi untuk {name}", message, name);
+
+  // if toggle once, mark used
+  if(onceToggle.checked){
+    usedCodes.push(rawCode);
+    saveUsedCodes(usedCodes);
+  }
+});
+
+// modal close
+modalClose.addEventListener('click', closeModal);
+modalBackdrop.addEventListener('click', (e)=>{
+  if(e.target === modalBackdrop) closeModal();
+});
+
+// reset button: clears form and optionally clears used codes
+resetBtn.addEventListener('click', ()=>{
+  codeInput.value = "";
+  nameInput.value = "";
+  onceToggle.checked = false;
+  // optionally ask to clear used codes
+  const clear = confirm("Apakah Anda ingin menghapus riwayat kode yang sudah digunakan pada perangkat ini? (Cancel untuk tidak)");
+  if(clear){
+    saveUsedCodes([]); alert("Riwayat kode terhapus.");
+  }
+});
+
+// keyboard: enter triggers check
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    // if focus is on input inside form
+    if(document.activeElement === codeInput || document.activeElement === nameInput){
+      e.preventDefault();
+      checkBtn.click();
+    }
+  }
+});
+
+// Optional: expose function to admin to add codes (for demo)
+window._adminAddCode = function(code, message){
+  if(!code || !message) return false;
+  codesMap[code] = message;
+  return true;
+};
+
+// Accessibility: trap focus in modal when open (simple)
+document.addEventListener('focus', (e)=>{
+  if(modalBackdrop.classList.contains('show')){
+    if(!modalBackdrop.contains(e.target)) modalClose.focus();
+  }
+}, true);
+
+// Audio auto-play with user interaction fallback
+window.addEventListener('load', ()=>{
+  const audio = document.querySelector('audio');
+  if(audio){
+    audio.play().catch(()=>{
+      const playOnce = ()=>{
+        audio.play().catch(()=>{});
+        document.removeEventListener('click', playOnce);
+        document.removeEventListener('keydown', playOnce);
+      };
+      document.addEventListener('click', playOnce);
+      document.addEventListener('keydown', playOnce);
+    });
+  }
+});
+
+// Bind photo toggle button
+window.addEventListener('DOMContentLoaded', ()=>{
+  const btn = document.getElementById('photoToggle');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    if(photoRainInterval) stopPhotoRain(); else startPhotoRain();
+  });
+});
+
+</script>
+</body>
+</html>
